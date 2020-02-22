@@ -1,39 +1,24 @@
-#include "standard-injection.h"
+#include "global.h"
 
 /*
-	Standard DLL Injection method.
-
-	1
+	- Standard Injection
+	  - Searching for `LoadLibraryW` address. We assuming `kernel32` libraries are loaded in same addresses for all processes.
+	  - Invoking `VirtualAllocEx` to allocate injected DLL name string.
+	  - Invoking `WriteProcessMemory` to write that string.
+	  - Invoking `CreateRemoteProcess` which will run `LoadLibraryW` with the dll name as a parameter.
 */
 BOOL makeStandardInjection(HANDLE hTargetProcess, PWSTR pwszDllName) {
 	SIZE_T cbAllocationSize, cbBytesWritten;
 	PWSTR pwszRemoteDllNameAddr;
-	HMODULE hKernel32;
 	LPVOID pLoadLibraryW;
 
-	hKernel32 = LoadLibrary(KERNEL_32);
-	if (NULL == hKernel32) {
-		DBG_PRINT("LoadLibrary for kernel32 failed. Error code %d\n", GetLastError());
-		return FALSE;
-	}
-
-	pLoadLibraryW = GetProcAddress(hKernel32, LOAD_LIBRARY);
-	if (NULL == pLoadLibraryW) {
-		DBG_PRINT("GetProcAddress for LoadLibrary failed. Error code %d\n", GetLastError());
+	if (!getLoadLibraryAddress(&pLoadLibraryW)) {
 		return FALSE;
 	}
 
 	cbAllocationSize = (wcslen(pwszDllName) + 1) * sizeof(WCHAR);
-	pwszRemoteDllNameAddr = (PWCHAR)VirtualAllocEx(
-		hTargetProcess, NULL, 0x1000, MEM_COMMIT, PAGE_READWRITE);
-	if (NULL == pwszRemoteDllNameAddr) {
-		DBG_PRINT("VirtualAllocEx failed. Error code %d\n", GetLastError());
-		return FALSE;
-	}
-
-	if (!WriteProcessMemory(
-		hTargetProcess, pwszRemoteDllNameAddr, pwszDllName, cbAllocationSize, &cbBytesWritten)) {
-		DBG_PRINT("WriteProcessMemory failed. Error code %d\n", GetLastError());
+	if (!allocateAndWriteRemoteProcess
+	(hTargetProcess, pwszDllName, cbAllocationSize, &pwszRemoteDllNameAddr)) {
 		return FALSE;
 	}
 

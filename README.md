@@ -9,20 +9,19 @@ The solution contains multiple projects:
 ## injection-cli
 
 Command line interface for testing and experimenting.
-It invokes the next injection techniques:
+The project contains the next injection techniques:
 
 - Standard Injection
   - Searching for `LoadLibraryW` address. We assuming `kernel32` libraries are loaded in same addresses for all processes.
   - Invoking `VirtualAllocEx` to allocate injected DLL name string. 
   - Invoking `WriteProcessMemory` to write that string.
   - Invoking `CreateRemoteProcess` which will run `LoadLibraryW` with the dll name as a parameter.
-- APC Injection (also known as Early Bird technique).
-  - **The implementation includes creating a new process instead of injecting a existing one. this is because of QueueUserAPC behaviour** 
+- APC Injection
   - Searching for `LoadLibraryW` address. We assuming `kernel32` libraries are loaded in same addresses for all processes.
-  - Creating new process in suspended state. The executable is passed by param to the injection function.
   - Invoking `VirtualAllocEx` to allocate injected DLL name string. 
   - Invoking `WriteProcessMemory` to write that string.
-  - Invoking `QueueUserAPC` with `LoadLibraryW` procedure and DLL name as a parameter. This function queues asynchronous procedure to the therad when he returns from **alertable** state. That state includes returning from the next functions:
+  - Enumerating all threads of the specified process using `CreateToolhelp32Snapshot`.
+  - For each such thread we are invoking `QueueUserAPC` with `LoadLibraryW` procedure and DLL name as a parameter. This function queues asynchronous procedure to the therad when he returns from **alertable** state. That state includes returning from the next functions:
     - `kernel32!SleepEx`
     - `kernel32!SignalObjectAndWait`
     - `kernel32!WaitForSingleObject`
@@ -30,12 +29,20 @@ It invokes the next injection techniques:
     - `kernel32!WaitForMultipleObjects`
     - `kernel32!WaitForMultipleObjectsEx`
     - `user32!MsgWaitForMultipleObjectsEx`
-  - Invoking `ResumeThread`. Because thread was in suspended state, starting it causes the operating system to invoke his waiting APC, means the injected code.
-- TBD
+  - Most of the time one of the threads will be returning from that state, and reload the library. I had 100% success with that method.
+- Early Bird Technique
+  - **The only difference here from APC Injection is the creation of a new process instead of injecting a existing one.** 
+  - Searching for `LoadLibraryW` address. We assuming `kernel32` libraries are loaded in same addresses for all processes.
+  - Creating new process in suspended state. The executable is passed by param to the injection function.
+  - Invoking `VirtualAllocEx` to allocate injected DLL name string. 
+  - Invoking `WriteProcessMemory` to write that string.
+  - Invoking `QueueUserAPC` with `LoadLibraryW` procedure and DLL name as a parameter.
+  - Invoking `ResumeThread`. Because thread was in suspended state, starting it causes the operating system to invoke the APC, means the injected code.
+- Process Hollowing. TBD.
 
 ### inline-hooking
 
-Dll which can be injected into `cmd.exe` process.
+Dll which can be injected into `cmd.exe` process and implements sample inline hooking technique.
 The Dll uses inline hooking on function `FindNextFileW` which is being called upon directory enumeration using command `dir`.
 The functionality of the hooking function is to remove the file `mal.exe` if exists in directory.
 

@@ -24,12 +24,12 @@
     <ClCompile Include="apc-injection.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="global.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="standard-injection.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="apc-injection.h">
+    <ClInclude Include="global.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,4 +1,4 @@
-#include "standard-injection.h"
+#include "global.h"
 
 /*
 	converts unicode string into lowercase.
@@ -105,8 +105,24 @@ BOOL standardInject(PWSTR pwszProcessName, PWSTR pwszDllName) {
 	return TRUE;
 }
 
-BOOL apcInjection(PWSTR pwszExePath, PWSTR pwszDllName) {
-	if (!makeAPCInjection(pwszExePath, pwszDllName)) {
+BOOL apcInjection(PWSTR pwszProcessName, PWSTR pwszDllName) {
+	HANDLE hProcess;
+
+	if (!findProcessHandle(&hProcess, pwszProcessName)) {
+		printf("Desired process couldn't be found.\n");
+		return FALSE;
+	}
+
+	if (!makeStandardInjection(hProcess, pwszDllName)) {
+		CloseHandle(hProcess);
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+BOOL earlyBirdInjection(PWSTR pwszExePath, PWSTR pwszDllName) {
+	if (!makeEarlyBirdInjection(pwszExePath, pwszDllName)) {
 		return FALSE;
 	}
 	return TRUE;
@@ -115,18 +131,24 @@ BOOL apcInjection(PWSTR pwszExePath, PWSTR pwszDllName) {
 int wmain(int argc, wchar_t **argv) {
 
 	//LPWSTR pszTargetProcess = L"C:\\Windows\\System32\\notepad.exe";
-	//LPWSTR pszTargetProcess = L"C:\\Windows\\System32\\cmd.exe";
+	LPWSTR pszTargetProcess = L"C:\\Windows\\System32\\cmd.exe";
 	//LPWSTR pszTargetProcess = L"C:\\Windows\\explorer.exe";
-	LPWSTR pszTargetProcess = L"C:\\Windows\\system32\\svchost.exe";
+	//LPWSTR pszTargetProcess = L"C:\\Windows\\system32\\cmd.exe";
 	//LPWSTR pszInjectedDll = L"C:\\Users\\alexi\\source\\repos\\sample-injection-hooking-proj\\sample-injection-hooking-solution\\x64\\Debug\\inline-hooking.dll";
 	LPWSTR pszInjectedDll = L"C:\\Users\\alexi\\source\\repos\\sample-injection-hooking-proj\\sample-injection-hooking-solution\\x64\\Debug\\sample-dll.dll";
 
-	/*if (!standardInject(pszTargetProcess, pszInjectedDll)) {
-		printf("The processes couldn't be found or insufficient permissions to make the injection.\n");
-	}*/
+	//if (!standardInject(pszTargetProcess, pszInjectedDll)) {
+	//	printf("Injection Failed.\n");
+	//  return 1;
+	//}
 	if (!apcInjection(pszTargetProcess, pszInjectedDll)) {
-		printf("The processes couldn't be found or insufficient permissions to make the injection.\n");
+		printf("Injection Failed.\n");
+		return 1;
 	}
+	//if (!earlyBirdInjection(pszTargetProcess, pszInjectedDll)) {
+	//	printf("Injection Failed.\n");
+	//  return 1;
+	//}
 	printf("Injection was successful.\n");
 	return 0;
 }

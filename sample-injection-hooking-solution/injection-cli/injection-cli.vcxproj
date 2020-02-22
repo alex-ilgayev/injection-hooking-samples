@@ -20,12 +20,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="apc-injection.c" />
+    <ClCompile Include="global.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="standard-injection.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="apc-injection.h" />
-    <ClInclude Include="standard-injection.h" />
+    <ClInclude Include="global.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
