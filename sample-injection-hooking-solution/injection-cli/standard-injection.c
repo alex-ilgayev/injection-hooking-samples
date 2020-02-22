@@ -1,5 +1,10 @@
 #include "standard-injection.h"
 
+/*
+	Standard DLL Injection method.
+
+	1
+*/
 BOOL makeStandardInjection(HANDLE hTargetProcess, PWSTR pwszDllName) {
 	SIZE_T cbAllocationSize, cbBytesWritten;
 	PWSTR pwszRemoteDllNameAddr;

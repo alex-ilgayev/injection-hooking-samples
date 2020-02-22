@@ -3,7 +3,6 @@
 #define DBG_PRINT(...) {char cad[512]; sprintf_s(cad, 512, __VA_ARGS__);  OutputDebugStringA(cad);}
 
 #define OPCODE_JMP '\xe9'
-#define OPCODE_CALL
 #define DLL_TO_HOOK L"kernelbase.dll"
 #define PROC_TO_HOOK "FindNextFileW"
 
@@ -52,7 +51,6 @@ void makeHook(LPVOID pProcToHook, LPVOID pHookToRun, LPVOID pReturnAddressAfterH
 	pchReturnTrampBuffer[cbBytesToCopy+1] = '\xb8';
 	dqRelativeAddress = (INT64)((char*)pProcToHook + cbBytesToCopy);
 	dqAddress = (INT64)((char*)pProcToHook + cbBytesToCopy);
-	//dqRelativeAddress -= (INT64)((char*)pchReturnTrampBuffer + cbBytesToCopy + 10); // 10 bytes for jmp x64
 	memcpy_s(pchReturnTrampBuffer + cbBytesToCopy + 2, 8, &dqAddress, 8);
 	pchReturnTrampBuffer[cbBytesToCopy + 10] = '\xff';
 	pchReturnTrampBuffer[cbBytesToCopy + 11] = '\xe0';

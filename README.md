@@ -12,7 +12,25 @@ Command line interface for testing and experimenting.
 It invokes the next injection techniques:
 
 - Standard Injection
-- APC Injection
+  - Searching for `LoadLibraryW` address. We assuming `kernel32` libraries are loaded in same addresses for all processes.
+  - Invoking `VirtualAllocEx` to allocate injected DLL name string. 
+  - Invoking `WriteProcessMemory` to write that string.
+  - Invoking `CreateRemoteProcess` which will run `LoadLibraryW` with the dll name as a parameter.
+- APC Injection (also known as Early Bird technique).
+  - **The implementation includes creating a new process instead of injecting a existing one. this is because of QueueUserAPC behaviour** 
+  - Searching for `LoadLibraryW` address. We assuming `kernel32` libraries are loaded in same addresses for all processes.
+  - Creating new process in suspended state. The executable is passed by param to the injection function.
+  - Invoking `VirtualAllocEx` to allocate injected DLL name string. 
+  - Invoking `WriteProcessMemory` to write that string.
+  - Invoking `QueueUserAPC` with `LoadLibraryW` procedure and DLL name as a parameter. This function queues asynchronous procedure to the therad when he returns from **alertable** state. That state includes returning from the next functions:
+    - `kernel32!SleepEx`
+    - `kernel32!SignalObjectAndWait`
+    - `kernel32!WaitForSingleObject`
+    - `kernel32!WaitForSingleObjectEx`
+    - `kernel32!WaitForMultipleObjects`
+    - `kernel32!WaitForMultipleObjectsEx`
+    - `user32!MsgWaitForMultipleObjectsEx`
+  - Invoking `ResumeThread`. Because thread was in suspended state, starting it causes the operating system to invoke his waiting APC, means the injected code.
 - TBD
 
 ### inline-hooking

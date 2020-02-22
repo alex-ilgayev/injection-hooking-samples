@@ -13,4 +13,4 @@
 #define KERNEL_32 L"kernel32"
 #define LOAD_LIBRARY "LoadLibraryW"
 
-BOOL makeStandardInjection(HANDLE hTargetProcess, PWSTR pwszDllName);
+BOOL makeAPCInjection(PWSTR pwszExePath, PWSTR pwszDllName);
