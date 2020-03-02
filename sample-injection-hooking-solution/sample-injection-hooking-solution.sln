@@ -5,6 +5,7 @@ VisualStudioVersion = 16.0.29519.87
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "injection-cli", "injection-cli\injection-cli.vcxproj", "{B379D68E-F32F-4EAE-BB15-DBF674143388}"
 	ProjectSection(ProjectDependencies) = postProject
+		{797A7251-F6E6-4D33-B529-168188A9107C} = {797A7251-F6E6-4D33-B529-168188A9107C}
 		{57B66094-A0E9-40DF-91ED-C2D3D502CF2D} = {57B66094-A0E9-40DF-91ED-C2D3D502CF2D}
 		{A9CFFFF2-45C2-4724-9F98-501FDBD69F8D} = {A9CFFFF2-45C2-4724-9F98-501FDBD69F8D}
 	EndProjectSection
@@ -12,6 +13,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sample-dll", "sample-dll\sample-dll.vcxproj", "{57B66094-A0E9-40DF-91ED-C2D3D502CF2D}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "inline-hooking", "inline-hooking\inline-hooking.vcxproj", "{A9CFFFF2-45C2-4724-9F98-501FDBD69F8D}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "iat-hooking", "iat-hooking\iat-hooking.vcxproj", "{797A7251-F6E6-4D33-B529-168188A9107C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +48,14 @@ Global
 		{A9CFFFF2-45C2-4724-9F98-501FDBD69F8D}.Release|x64.Build.0 = Release|x64
 		{A9CFFFF2-45C2-4724-9F98-501FDBD69F8D}.Release|x86.ActiveCfg = Release|Win32
 		{A9CFFFF2-45C2-4724-9F98-501FDBD69F8D}.Release|x86.Build.0 = Release|Win32
+		{797A7251-F6E6-4D33-B529-168188A9107C}.Debug|x64.ActiveCfg = Debug|x64
+		{797A7251-F6E6-4D33-B529-168188A9107C}.Debug|x64.Build.0 = Debug|x64
+		{797A7251-F6E6-4D33-B529-168188A9107C}.Debug|x86.ActiveCfg = Debug|Win32
+		{797A7251-F6E6-4D33-B529-168188A9107C}.Debug|x86.Build.0 = Debug|Win32
+		{797A7251-F6E6-4D33-B529-168188A9107C}.Release|x64.ActiveCfg = Release|x64
+		{797A7251-F6E6-4D33-B529-168188A9107C}.Release|x64.Build.0 = Release|x64
+		{797A7251-F6E6-4D33-B529-168188A9107C}.Release|x86.ActiveCfg = Release|Win32
+		{797A7251-F6E6-4D33-B529-168188A9107C}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

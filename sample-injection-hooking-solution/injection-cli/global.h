@@ -7,8 +7,6 @@
 #include <TlHelp32.h>
 #include <psapi.h>
 
-#define DBG_PRINT(...) {char cad[512]; sprintf_s(cad, 512, __VA_ARGS__);  OutputDebugStringA(cad);}
-
 #define KERNEL_32 L"kernel32"
 #define LOAD_LIBRARY "LoadLibraryW"
 
@@ -19,3 +17,4 @@ BOOL allocateAndWriteRemoteProcess(HANDLE hProcess, LPVOID data, SIZE_T size, LP
 BOOL makeStandardInjection(HANDLE hTargetProcess, PWSTR pwszDllName);
 BOOL makeAPCInjection(PWSTR hTargetProcess, PWSTR pwszDllName);
 BOOL makeEarlyBirdInjection(PWSTR pwszExePath, PWSTR pwszDllName);
+BOOL makeThreadHijackingInjection(PWSTR hTargetProcess, PWSTR pwszDllName);

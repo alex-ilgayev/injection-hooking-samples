@@ -24,7 +24,7 @@ BOOL WINAPI hookFindNextFileW(HANDLE hFindFile, LPWIN32_FIND_DATAW lpFindFileDat
 	return fIsSuccess;
 }
 
-void makeHook(LPVOID pProcToHook, LPVOID pHookToRun, LPVOID pReturnAddressAfterHook) {
+void makeHook(LPVOID pProcToHook, LPVOID pHookToRun, LPVOID *pReturnAddressAfterHook) {
 	DWORD pflOldProtect;
 	PUCHAR pchSavedBytesBuffer;
 	PUCHAR pchReturnTrampBuffer;
@@ -54,7 +54,7 @@ void makeHook(LPVOID pProcToHook, LPVOID pHookToRun, LPVOID pReturnAddressAfterH
 	memcpy_s(pchReturnTrampBuffer + cbBytesToCopy + 2, 8, &dqAddress, 8);
 	pchReturnTrampBuffer[cbBytesToCopy + 10] = '\xff';
 	pchReturnTrampBuffer[cbBytesToCopy + 11] = '\xe0';
-	pFindNextFileWHookReturn = (procFindNextFileW_t ) pchReturnTrampBuffer;
+	*pReturnAddressAfterHook = (LPVOID) pchReturnTrampBuffer;
 
 	// hook setup
 	char pchReplacedBytes[5]; // TODO: should be cbBytesToCopy
@@ -83,5 +83,5 @@ void hookMain() {
 		return;
 	}
 
-	makeHook(pProcToHook, (LPVOID)hookFindNextFileW, pFindNextFileWHookReturn);
+	makeHook(pProcToHook, (LPVOID)hookFindNextFileW, (LPVOID*)&pFindNextFileWHookReturn);
 }

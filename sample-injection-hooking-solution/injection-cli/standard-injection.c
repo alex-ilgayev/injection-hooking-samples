@@ -8,7 +8,7 @@
 	  - Invoking `CreateRemoteProcess` which will run `LoadLibraryW` with the dll name as a parameter.
 */
 BOOL makeStandardInjection(HANDLE hTargetProcess, PWSTR pwszDllName) {
-	SIZE_T cbAllocationSize, cbBytesWritten;
+	SIZE_T cbAllocationSize;
 	PWSTR pwszRemoteDllNameAddr;
 	LPVOID pLoadLibraryW;
 
@@ -24,7 +24,7 @@ BOOL makeStandardInjection(HANDLE hTargetProcess, PWSTR pwszDllName) {
 
 	if (!CreateRemoteThread(
 		hTargetProcess, NULL, 0, (LPTHREAD_START_ROUTINE) pLoadLibraryW, pwszRemoteDllNameAddr, 0, NULL)) {
-		DBG_PRINT("CreateRemoteThread failed. Error code %d\n", GetLastError());
+		printf("CreateRemoteThread failed. Error code %d\n", GetLastError());
 		return FALSE;
 	}
 

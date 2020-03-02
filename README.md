@@ -42,9 +42,15 @@ The project contains the next injection techniques:
 
 ### inline-hooking
 
-Dll which can be injected into `cmd.exe` process and implements sample inline hooking technique.
-The Dll uses inline hooking on function `FindNextFileW` which is being called upon directory enumeration using command `dir`.
+Dll which can be injected into `cmd.exe` process and implements sample inline hooking technique.</br>
+The Dll uses inline hooking on function `FindNextFileW` which is being called upon directory enumeration using command `dir`.</br>
 The functionality of the hooking function is to remove the file `mal.exe` if exists in directory.
+
+### iat-hooking
+
+Dll which can be injected into `cmd.exe` process and implements sample IAT (Import Address Table) hooking technique.</br>
+The Dll "parse" current loaded module PE file, searches for Import directory, search for specified dll and function in the directory, and overwrite it with our hooked function.</br>
+Our sample overwrites function `FindNextFileW` which is called upon directory enumeration, and change the address to our "malicious" function.
 
 ### sample-dll
 

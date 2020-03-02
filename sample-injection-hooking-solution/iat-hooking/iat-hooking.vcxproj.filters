@@ -15,25 +15,16 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="standard-injection.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="apc-injection.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="global.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="thread-hijacking-injection.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="global.h">
+    <ClInclude Include="hook.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="dllmain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="hook.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

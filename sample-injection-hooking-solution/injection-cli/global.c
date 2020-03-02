@@ -5,7 +5,7 @@ BOOL getLoadLibraryAddress(LPVOID* pLoadLibraryW_) {
 	HMODULE hKernel32;
 	LPVOID pLoadLibraryW;
 
-	hKernel32 = LoadLibrary(KERNEL_32);
+	hKernel32 = LoadLibraryW(KERNEL_32);
 	if (NULL == hKernel32) {
 		printf("LoadLibrary for kernel32 failed. Error code %d\n", GetLastError());
 		return FALSE;
